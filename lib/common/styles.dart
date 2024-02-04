@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 class AppColors {
   static const primaryBlueColor = blueBoxSelected;
 
-  static const grey = Color(0x33707070);
   static const lightGrey = Color(0xffC3DAF9);
   static const lightGrey2 = Color(0xffE4EFFF);
   static const lightGrey3 = Color(0xffBDD4F1);
@@ -17,33 +16,34 @@ class AppColors {
   static const black = Color(0xff000000);
   static const blueBoxSelected = Color(0xff52728D);
   static const blueBoxUnSelected = Color(0xffB4CAE6);
+
+  static const white = Colors.white;
 }
 
 class AppTextStyles {
-  static final _fontBold = GoogleFonts.poppins(
-    textStyle: const TextStyle(
-        fontWeight: FontWeight.w700,
-        fontStyle: FontStyle.normal,
-        color: Colors.black,
-        letterSpacing: 0.5),
-  );
+  static final _fontBold = const TextStyle(
+      fontWeight: FontWeight.bold,
+      fontStyle: FontStyle.normal,
+      color: Colors.black,
+      fontFamily: 'consoles',
+      letterSpacing: 0.5);
 
-  static final _fontBoldMedium = GoogleFonts.poppins(
-    textStyle: const TextStyle(
-        fontWeight: FontWeight.w600,
-        fontStyle: FontStyle.normal,
-        color: Colors.black,
-        letterSpacing: 0.5),
-  );
-  static final _fontNormal = GoogleFonts.poppins(
-      textStyle: const TextStyle(
-          fontWeight: FontWeight.normal,
-          letterSpacing: 0.5,
-          fontStyle: FontStyle.normal,
-          color: Colors.black));
+  static final _fontBoldMedium = const TextStyle(
+      fontWeight: FontWeight.w600,
+      fontStyle: FontStyle.normal,
+      color: Colors.black,
+      fontFamily: 'consoles',
+      letterSpacing: 0.5);
 
-  static TextStyle textStyleBoldSubTitleLarge =
-      _fontBold.copyWith(fontSize: 28.sp, letterSpacing: 1);
+  static final _fontNormal = const TextStyle(
+      fontWeight: FontWeight.normal,
+      letterSpacing: 0.5,
+      fontFamily: 'consoles',
+      fontStyle: FontStyle.normal,
+      color: Colors.black);
+
+  static TextStyle textStyleBoldSubTitleLarge = _fontBold.copyWith(
+      fontSize: 30.sp, fontWeight: FontWeight.bold, letterSpacing: 1.5);
 
   static TextStyle textStyleNormalLargeTitle =
       _fontNormal.copyWith(fontSize: 28.sp);

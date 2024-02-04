@@ -4,7 +4,6 @@ import 'package:bramzo_lite/common/app_constants.dart';
 import 'package:bramzo_lite/views/home/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
@@ -20,24 +19,11 @@ class MyApplication extends StatefulWidget {
   _MyApplicationState createState() => _MyApplicationState();
 }
 
-class _MyApplicationState extends State<MyApplication>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
+class _MyApplicationState extends State<MyApplication> {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
+      useInheritedMediaQuery: true,
       designSize: const Size(428, 926),
       builder: (_, __) => GetMaterialApp(
         getPages: appRoutes(),
@@ -70,6 +56,7 @@ class MyScrollBehavior extends MaterialScrollBehavior {
         PointerDeviceKind.touch,
         PointerDeviceKind.mouse,
         PointerDeviceKind.unknown,
+        PointerDeviceKind.trackpad,
         PointerDeviceKind.invertedStylus,
       };
 }

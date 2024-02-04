@@ -6,6 +6,7 @@ class AppConstants {
       'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper vel illum ';
   static const appName = 'Bramzo Lite';
 
-  static EdgeInsets get leftRightPadding =>
-      EdgeInsets.symmetric(horizontal: 20.w);
+  static double get topBottomPadding => 10;
+  static double get listItemHeight => 45;
+  static double get leftRightPadding => 30;
 }

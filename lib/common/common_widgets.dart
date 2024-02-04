@@ -1,8 +1,11 @@
 import 'package:bramzo_lite/common/styles.dart';
+import 'package:bramzo_lite/views/home/controllers/home_page_controller.dart';
+import 'package:ensure_visible_when_focused/ensure_visible_when_focused.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'app_constants.dart';
 
 typedef FieldValidator = String? Function(String? data);
 
@@ -35,163 +38,106 @@ class SvgViewer extends StatelessWidget {
   }
 }
 
-class MyTextField extends StatelessWidget {
-  final Color? fillColor;
+class CustomTextField extends StatefulWidget {
+  final Color backgroundColor;
+  final Color tabColor;
+  final ValueChanged<String>? onTextChanged;
+  final TextEditingController controller;
+  final bool needRequestFocus;
+  final HomePageController homeController;
 
-  final String? hintText;
-  final Color? hintColor;
-  final String? prefixIcon;
-  final String? suffixIcon;
-  final Color? focusBorderColor;
-  final Color? unfocusBorderColor;
-  final double? contentPadding;
-  final bool? enable;
-  final String? text;
-  final String? sufixLabel;
-
-  final onFieldSubmit;
-  final double? leftPadding;
-  final double? rightPadding;
-  final TextEditingController? controller;
-  final Function? focusListner;
-  final FocusNode? focusNode;
-  final FieldValidator? validator;
-  final TextInputType? keyboardType;
-  final inputFormatters;
-  final Color textColor;
-  final bool? obsecureText;
-  final Widget? suffixIconWidet;
-  final Widget? prefixIconWidget;
-  int minLines = 1;
-  int maxLines = 1;
-  TextDirection? textDirection;
-  double borderRadius;
-  final bool? readOnly;
-  final bool? autofocus;
-  TextStyle? textStyle;
-  TextAlign? textAlign;
-
-  MyTextField({
-    Key? key,
-    this.textDirection,
-    this.borderRadius = 30,
-    this.textColor = Colors.black,
-    this.obsecureText,
-    this.readOnly,
-    this.autofocus,
-    this.fillColor,
-    this.maxLines = 1,
-    this.minLines = 1,
-    this.hintText,
-    this.hintColor,
-    this.prefixIcon,
-    this.inputFormatters,
-    this.suffixIcon,
-    this.focusBorderColor,
-    this.unfocusBorderColor,
-    this.onFieldSubmit,
-    this.contentPadding,
-    this.enable = true,
-    this.text,
-    this.sufixLabel,
-    this.leftPadding,
-    this.rightPadding,
-    this.controller,
-    this.focusListner,
-    this.validator,
-    this.focusNode,
-    this.suffixIconWidet,
-    this.prefixIconWidget,
-    this.keyboardType,
-    this.textStyle,
-    this.textAlign,
-  }) : super(key: key);
+  const CustomTextField({
+    super.key,
+    required this.controller,
+    this.backgroundColor = AppColors.lightGrey2,
+    this.tabColor = AppColors.lightGrey3,
+    this.onTextChanged,
+    required this.needRequestFocus,
+    required this.homeController,
+  });
 
   @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  FocusNode focusNode = FocusNode();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (widget.needRequestFocus) {
+        focusNode.requestFocus();
+      }
+    });
+
+    super.initState();
+  }
+
+  final dataKey = GlobalKey();
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: leftPadding ?? 0,
-        right: rightPadding ?? 0,
-      ),
-      child: TextFormField(
-        readOnly: readOnly ?? false,
-        obscureText: obsecureText ?? false,
-        style: textStyle ??
-            AppTextStyles.textStyleNormalBodySmall.copyWith(color: textColor),
-        controller: controller ?? TextEditingController(),
-        initialValue: text,
-        minLines: minLines,
-        maxLines: maxLines,
-        textAlign: textAlign ?? TextAlign.start,
-        inputFormatters: inputFormatters,
-        keyboardType: keyboardType ?? TextInputType.text,
-        enabled: enable,
-        onFieldSubmitted: onFieldSubmit,
-        focusNode: focusNode,
-        validator: validator,
-        autofocus: autofocus ?? false,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(contentPadding ?? 12.h),
-          fillColor: fillColor,
-          alignLabelWithHint: true,
-          hintText: hintText ?? '',
-          filled: fillColor != null,
-          hintStyle: AppTextStyles.textStyleNormalBodyXSmall
-              .copyWith(color: hintColor ?? AppColors.black),
-          prefixIconConstraints: BoxConstraints(
-              maxHeight: 44, minHeight: 44, maxWidth: 55.w, minWidth: 34),
-          prefixIcon: (prefixIcon != null)
-              ? Padding(
-                  padding: EdgeInsets.all(contentPadding ?? 28),
-                  child: SvgViewer(
-                    svgPath: prefixIcon!,
-                    width: 40.w,
-                    height: 14.h,
-                    color: hintColor ?? AppColors.black,
-                  ),
-                )
-              : prefixIconWidget,
-          suffixIcon: sufixLabel != null
-              ? Padding(
-                  padding: EdgeInsets.all(2.h),
-                  child: Text(
-                    sufixLabel ?? '',
-                    style: AppTextStyles.textStyleBoldBodySmall,
-                  ),
-                )
-              : (suffixIcon != null)
-                  ? Padding(
-                      padding: EdgeInsets.all(8.h),
-                      child: SvgViewer(
-                        svgPath: suffixIcon!,
+    return Row(
+      children: [
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6.0),
+            child: Container(
+              decoration: BoxDecoration(color: widget.backgroundColor),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onVerticalDragUpdate: (details) {
+                        widget.homeController.scrollController.jumpTo(
+                            widget.homeController.scrollController.offset -
+                                details.primaryDelta!);
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
+                      child: EnsureVisibleWhenFocused(
+                        focusNode: focusNode,
+                        child: TextField(
+                          key: dataKey,
+                          focusNode: focusNode,
+                          onTap: () {
+                            focusNode.requestFocus();
+                          },
+                          onChanged: widget.onTextChanged,
+                          controller: widget.controller,
+                          style: AppTextStyles.textStyleBoldBodyMedium,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.only(left: 14),
+                            border: InputBorder.none,
+                          ),
+                        ),
                       ),
-                    )
-                  : (suffixIconWidet),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16.r),
-            borderSide: BorderSide(color: focusBorderColor ?? AppColors.black),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16.r),
-            borderSide: BorderSide(color: focusBorderColor ?? AppColors.black),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16.r),
-            borderSide:
-                BorderSide(color: unfocusBorderColor ?? AppColors.black),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16.r),
-            borderSide: const BorderSide(color: AppColors.red),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16.r),
-            borderSide: BorderSide(
-                color: focusBorderColor ?? AppColors.primaryBlueColor),
+                    ),
+                  ),
+                  GestureDetector(
+                    onLongPress: () {},
+                    child: Container(
+                      color: widget.tabColor,
+                      width: 50.0,
+                      height: double.infinity,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+        GestureDetector(
+            onVerticalDragUpdate: (details) {
+              widget.homeController.scrollController.jumpTo(
+                  widget.homeController.scrollController.offset -
+                      details.primaryDelta!);
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: Container(
+                color: AppColors.primaryBlueColor,
+                height: double.infinity,
+                width: AppConstants.leftRightPadding))
+      ],
     );
   }
 }
@@ -220,11 +166,25 @@ class MyCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
           side: BorderSide(
               color: borderColor ?? bgColor ?? Colors.transparent, width: 0.1),
-          borderRadius: BorderRadius.circular(radius ?? 16)),
+          borderRadius: BorderRadius.circular(radius ?? 6)),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(4.0),
         child: child,
       ),
     );
   }
+}
+
+Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
+  return AnimatedBuilder(
+    animation: animation,
+    builder: (BuildContext context, Widget? child) {
+      return Material(
+        color: Colors.transparent,
+        shadowColor: Colors.transparent,
+        child: child,
+      );
+    },
+    child: child,
+  );
 }
