@@ -1,12 +1,14 @@
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:bramzo_lite/common/app_constants.dart';
 import 'package:bramzo_lite/common/common_widgets.dart';
+import 'package:bramzo_lite/generated/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../common/styles.dart';
 import 'controllers/home_page_controller.dart';
+import 'models/tab_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -21,6 +23,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return GetX<HomePageController>(
       init: HomePageController(),
+      autoRemove: false,
       initState: (state) {
         state.controller?.initProcess();
       },
@@ -36,7 +39,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ///app-bar
                   Padding(
                     padding: EdgeInsets.symmetric(
-                        horizontal: AppConstants.leftRightPadding),
+                        vertical: 8, horizontal: AppConstants.leftRightPadding),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -65,18 +68,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ),
                         const Spacer(),
-                        Container(
-                          height: 35.h,
-                          decoration: const BoxDecoration(
-                              color: AppColors.blueBoxUnSelected),
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Text(
-                            "RESET",
-                            style: AppTextStyles.textStyleBoldSubTitleLarge
-                                .copyWith(
-                                    color: AppColors.primaryBlueColor,
-                                    fontSize: 22.sp),
+                        GestureDetector(
+                          onTap: () {
+                            controller.initProcess();
+                          },
+                          child: Container(
+                            height: 35.h,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                color: AppColors.blueBoxUnSelected),
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: Text(
+                              "RESET",
+                              style: AppTextStyles.textStyleBoldSubTitleLarge
+                                  .copyWith(
+                                      color: AppColors.primaryBlueColor,
+                                      fontSize: 22.sp),
+                            ),
                           ),
                         )
                       ],
@@ -101,6 +110,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         exitTransition: controller.animations,
                         insertDuration: const Duration(milliseconds: 300),
                         removeDuration: const Duration(milliseconds: 300),
+                        onReorderStart: (index) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
                         onReorder: (int oldIndex, int newIndex) {
                           final TabModel item =
                               controller.listItems.removeAt(oldIndex);
@@ -127,10 +139,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               borderRadius: BorderRadius.circular(4),
                               color: AppColors.blueBoxUnSelected),
                           alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.add,
-                            color: AppColors.primaryBlueColor,
-                            size: 40,
+                          child: SvgViewer(
+                            svgPath: Assets.svgsAddBtnSvf,
+                            height: 28.sp,
+                            width: 28.sp,
                           ),
                         ),
                       ),
@@ -150,56 +162,94 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return SizedBox(
       key: ValueKey(model.id),
       height: AppConstants.listItemHeight + 10,
-      child: Column(
-        children: [
-          Expanded(
-            child: Row(
+      child: GetBuilder<HomePageController>(
+          assignId: true,
+          id: "tab",
+          autoRemove: false,
+          builder: (context) {
+            return Column(
               children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onVerticalDragUpdate: (details) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          homeController.scrollController.jumpTo(
+                              homeController.scrollController.offset -
+                                  details.primaryDelta!);
+                        },
+                        onTap: () {
+                          homeController.listItems.removeAt(index);
+                          homeController.listItems = homeController.listItems;
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SvgViewer(
+                            svgPath: Assets.svgsDelBtnSvg,
+                            height: 18.sp,
+                            width: 18.sp,
+                            color: homeController.getDelBtnColor(model: model),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: CustomTextField(
+                          homeController: homeController,
+                          needRequestFocus: true,
+                          onBoxLongPress: () {
+                            model.isCheckedOff = !model.isCheckedOff;
+                            homeController.update(["tab"]);
+                            print(("on long press"));
+                          },
+                          onBoxTap: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            if (!model.isCheckedOff) {
+                              homeController.selectedTabModel = model;
+                              homeController.update(["tab"]);
+                            }
+                          },
+                          model: model,
+                          onTextChanged: (text) {
+                            model.value = text;
+                          },
+                        ),
+                      ),
+
+                      ///right margin
+                      GestureDetector(
+                        onVerticalDragUpdate: (details) {
+                          homeController.scrollController.jumpTo(
+                              homeController.scrollController.offset -
+                                  details.primaryDelta!);
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        child: Container(
+                            color: AppColors.primaryBlueColor,
+                            height: double.infinity,
+                            width: AppConstants.leftRightPadding),
+                      )
+                    ],
+                  ),
+                ),
+
+                ///bottom margin
                 GestureDetector(
                   onVerticalDragUpdate: (details) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-
                     homeController.scrollController.jumpTo(
                         homeController.scrollController.offset -
                             details.primaryDelta!);
+                    FocusManager.instance.primaryFocus?.unfocus();
                   },
-                  onTap: () {
-                    homeController.listItems.removeAt(index);
-                    homeController.listItems = homeController.listItems;
-                  },
-                  child: Icon(
-                    Icons.close_outlined,
-                    size: AppConstants.leftRightPadding,
-                    color: AppColors.lightGrey,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: CustomTextField(
-                    homeController: homeController,
-                    needRequestFocus: false,
-                    controller: TextEditingController(text: model.value),
-                    onTextChanged: (text) {
-                      model.value = text;
-                    },
-                  ),
-                ),
+                  child: Container(
+                      color: Colors.transparent,
+                      height: 10,
+                      width: double.infinity),
+                )
               ],
-            ),
-          ),
-          GestureDetector(
-              onVerticalDragUpdate: (details) {
-                homeController.scrollController.jumpTo(
-                    homeController.scrollController.offset -
-                        details.primaryDelta!);
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              child: Container(
-                  color: Colors.transparent,
-                  height: 10,
-                  width: double.infinity))
-        ],
-      ),
+            );
+          }),
     );
   }
 }

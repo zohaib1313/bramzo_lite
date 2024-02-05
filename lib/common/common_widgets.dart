@@ -1,11 +1,10 @@
 import 'package:bramzo_lite/common/styles.dart';
 import 'package:bramzo_lite/views/home/controllers/home_page_controller.dart';
+import 'package:bramzo_lite/views/home/models/tab_model.dart';
 import 'package:ensure_visible_when_focused/ensure_visible_when_focused.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import 'app_constants.dart';
 
 typedef FieldValidator = String? Function(String? data);
 
@@ -39,21 +38,22 @@ class SvgViewer extends StatelessWidget {
 }
 
 class CustomTextField extends StatefulWidget {
-  final Color backgroundColor;
-  final Color tabColor;
+  final TabModel model;
   final ValueChanged<String>? onTextChanged;
-  final TextEditingController controller;
+
   final bool needRequestFocus;
   final HomePageController homeController;
+  final Null Function() onBoxLongPress;
+  final Null Function() onBoxTap;
 
   const CustomTextField({
     super.key,
-    required this.controller,
-    this.backgroundColor = AppColors.lightGrey2,
-    this.tabColor = AppColors.lightGrey3,
     this.onTextChanged,
+    required this.model,
     required this.needRequestFocus,
     required this.homeController,
+    required this.onBoxLongPress,
+    required this.onBoxTap,
   });
 
   @override
@@ -62,6 +62,7 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   FocusNode focusNode = FocusNode();
+  TextEditingController textEditingController = TextEditingController();
 
   @override
   void initState() {
@@ -70,11 +71,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
         focusNode.requestFocus();
       }
     });
-
+    textEditingController
+      ..text = widget.model.value
+      ..selection = TextSelection.collapsed(offset: widget.model.value.length);
     super.initState();
   }
 
-  final dataKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -83,7 +85,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(6.0),
             child: Container(
-              decoration: BoxDecoration(color: widget.backgroundColor),
+              decoration: BoxDecoration(
+                color: widget.homeController
+                    .getTextFieldBgColor(model: widget.model),
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -97,14 +102,22 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       child: EnsureVisibleWhenFocused(
                         focusNode: focusNode,
                         child: TextField(
-                          key: dataKey,
                           focusNode: focusNode,
                           onTap: () {
-                            focusNode.requestFocus();
+                            if (!widget.model.isCheckedOff) {
+                              widget.homeController.selectedTabModel =
+                                  widget.model;
+                              widget.homeController.update(["tab"]);
+                            }
+                            //  widget.textEditController.selection=TextSelection.collapsed(offset: offset)
+                            //   focusNode.requestFocus();
                           },
                           onChanged: widget.onTextChanged,
-                          controller: widget.controller,
-                          style: AppTextStyles.textStyleBoldBodyMedium,
+                          controller: textEditingController,
+                          style: AppTextStyles.textStyleBoldBodyMedium.copyWith(
+                              color: widget.model.isCheckedOff
+                                  ? AppColors.orangeText
+                                  : Colors.black),
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.only(left: 14),
                             border: InputBorder.none,
@@ -114,9 +127,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     ),
                   ),
                   GestureDetector(
-                    onLongPress: () {},
+                    onLongPress: widget.onBoxLongPress,
+                    onTap: widget.onBoxTap,
                     child: Container(
-                      color: widget.tabColor,
+                      color: widget.model.isCheckedOff
+                          ? AppColors.orangeBox1
+                          : AppColors.blueBoxUnSelected,
                       width: 50.0,
                       height: double.infinity,
                     ),
@@ -126,17 +142,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
             ),
           ),
         ),
-        GestureDetector(
-            onVerticalDragUpdate: (details) {
-              widget.homeController.scrollController.jumpTo(
-                  widget.homeController.scrollController.offset -
-                      details.primaryDelta!);
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            child: Container(
-                color: AppColors.primaryBlueColor,
-                height: double.infinity,
-                width: AppConstants.leftRightPadding))
       ],
     );
   }

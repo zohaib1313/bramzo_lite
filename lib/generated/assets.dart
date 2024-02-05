@@ -5,4 +5,6 @@ class Assets {
   static const String fontsCONSOLA = 'assets/fonts/CONSOLA.TTF';
   static const String fontsCONSOLAB = 'assets/fonts/CONSOLAB.TTF';
   static const String fontsCour = 'assets/fonts/cour.ttf';
+  static const String svgsAddBtnSvf = 'assets/svgs/add_btn_svf.svg';
+  static const String svgsDelBtnSvg = 'assets/svgs/del_btn_svg.svg';
 }
