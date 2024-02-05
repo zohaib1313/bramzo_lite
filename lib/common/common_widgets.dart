@@ -104,6 +104,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         focusNode: widget.focusNode,
                         child: TextField(
                           focusNode: widget.focusNode,
+                          textCapitalization: TextCapitalization.sentences,
                           onTap: () {
                             AppUtils.playTapSound();
                             if (!widget.model.isCheckedOff) {
