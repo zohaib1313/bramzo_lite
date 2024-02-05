@@ -1,3 +1,4 @@
+import 'package:bramzo_lite/common/app_utils.dart';
 import 'package:bramzo_lite/common/styles.dart';
 import 'package:bramzo_lite/views/home/controllers/home_page_controller.dart';
 import 'package:bramzo_lite/views/home/models/tab_model.dart';
@@ -41,7 +42,6 @@ class CustomTextField extends StatefulWidget {
   final TabModel model;
   final ValueChanged<String>? onTextChanged;
   final FocusNode focusNode;
-
 
   final HomePageController homeController;
   final Null Function() onBoxLongPress;
@@ -105,6 +105,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         child: TextField(
                           focusNode: widget.focusNode,
                           onTap: () {
+                            AppUtils.playTapSound();
                             if (!widget.model.isCheckedOff) {
                               widget.homeController.selectedTabModel =
                                   widget.model;

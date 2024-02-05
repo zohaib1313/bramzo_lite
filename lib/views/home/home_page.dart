@@ -1,10 +1,13 @@
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:bramzo_lite/common/app_constants.dart';
+import 'package:bramzo_lite/common/app_utils.dart';
 import 'package:bramzo_lite/common/common_widgets.dart';
 import 'package:bramzo_lite/generated/assets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:vibration/vibration.dart';
 
 import '../../common/db_helper/objectbox_class.dart';
 import '../../common/styles.dart';
@@ -71,6 +74,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         const Spacer(),
                         GestureDetector(
                           onTap: () async {
+                            AppUtils.playTapSound();
                             await ObjectBox.deleteAllObjects<TabModel>();
                             controller.initProcess();
                           },
@@ -136,6 +140,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: Center(
                       child: InkWell(
                         onTap: () {
+                          AppUtils.playTapSound();
                           controller.addNewItemToList();
                         },
                         child: Container(
@@ -186,6 +191,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   details.primaryDelta!);
                         },
                         onTap: () async {
+                          AppUtils.playTapSound();
                           if (homeController.listItems.length > 1) {
                             if (homeController.selectedTabModel?.localId ==
                                 homeController.listItems
@@ -224,10 +230,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           homeController: homeController,
                           focusNode: model.focusNode!,
                           onBoxLongPress: () {
+                            AppUtils.playTapSound();
                             model.isCheckedOff = !model.isCheckedOff;
+                            Vibration.vibrate(duration: 55);
                             homeController.update(["tab"]);
                           },
                           onBoxTap: () {
+                            AppUtils.playTapSound();
                             FocusManager.instance.primaryFocus?.unfocus();
                             //if (!model.isCheckedOff) {
                             homeController.selectedTabModel = model;

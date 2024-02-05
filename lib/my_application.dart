@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:bramzo_lite/common/app_constants.dart';
+import 'package:bramzo_lite/common/app_utils.dart';
 import 'package:bramzo_lite/views/home/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ class _MyApplicationState extends State<MyApplication> {
         navigatorKey: navigatorKey,
         home: GestureDetector(
           onTap: () {
+            AppUtils.playTapSound();
             FocusManager.instance.primaryFocus?.unfocus();
           },
           child: const HomePage(),
