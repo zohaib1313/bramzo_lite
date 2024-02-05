@@ -1,16 +1,21 @@
 import 'package:flutter/cupertino.dart';
+import 'package:objectbox/objectbox.dart';
 
+@Entity()
 class TabModel {
-  int id;
+  @Id()
+  int? id;
+  int localId;
+  int? index;
   String value;
   bool isCheckedOff;
-
-  FocusNode focusNode;
+  FocusNode? focusNode;
 
   TabModel({
-    required this.id,
+    required this.localId,
+    this.index,
     required this.value,
-    required this.focusNode,
+    this.focusNode,
     this.isCheckedOff = false,
   });
 
@@ -19,16 +24,16 @@ class TabModel {
       identical(this, other) ||
       other is TabModel &&
           runtimeType == other.runtimeType &&
-          id == other.id &&
+          localId == other.localId &&
           focusNode == other.focusNode &&
           value == other.value &&
           isCheckedOff == other.isCheckedOff;
 
   @override
-  int get hashCode => id.hashCode ^ value.hashCode ^ isCheckedOff.hashCode;
+  int get hashCode => localId.hashCode ^ value.hashCode ^ isCheckedOff.hashCode;
 
   @override
   String toString() {
-    return 'TabModel{id: $id, value: $value, isCheckedOff: $isCheckedOff}';
+    return 'TabModel{id: $id,index: $index, localId: $localId, value: $value, isCheckedOff: $isCheckedOff}';
   }
 }

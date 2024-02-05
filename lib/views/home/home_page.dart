@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../common/db_helper/objectbox_class.dart';
 import '../../common/styles.dart';
 import 'controllers/home_page_controller.dart';
 import 'models/tab_model.dart';
@@ -69,7 +70,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         const Spacer(),
                         GestureDetector(
-                          onTap: () {
+                          onTap: () async {
+                            await ObjectBox.deleteAllObjects<TabModel>();
                             controller.initProcess();
                           },
                           child: Container(
@@ -114,9 +116,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           FocusManager.instance.primaryFocus?.unfocus();
                         },
                         onReorder: (int oldIndex, int newIndex) {
+                          print("reorder");
                           final TabModel item =
                               controller.listItems.removeAt(oldIndex);
                           controller.listItems.insert(newIndex, item);
+
+                          controller.updateAllObjectBox(
+                              modelList: controller.listItems);
                         },
                         proxyDecorator: proxyDecorator,
                       ),
@@ -160,7 +166,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       required TabModel model,
       required HomePageController homeController}) {
     return SizedBox(
-      key: ValueKey(model.id),
+      key: ValueKey(model.localId),
       height: AppConstants.listItemHeight + 10,
       child: GetBuilder<HomePageController>(
           assignId: true,
@@ -179,16 +185,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               homeController.scrollController.offset -
                                   details.primaryDelta!);
                         },
-                        onTap: () {
+                        onTap: () async {
                           if (homeController.listItems.length > 1) {
-                            if (homeController.listItems.elementAt(index).id ==
-                                homeController.selectedTabModel?.id) {
-                              homeController.selectedTabModel =
-                                  homeController.listItems.elementAt(index - 1);
+                            if (homeController.selectedTabModel?.localId ==
+                                homeController.listItems
+                                    .elementAt(index)
+                                    .localId) {
+                              if (index != 0) {
+                                homeController.selectedTabModel = homeController
+                                    .listItems
+                                    .elementAt(index - 1);
+                              } else {
+                                homeController.selectedTabModel = homeController
+                                    .listItems
+                                    .elementAt(index + 1);
+                              }
                             }
 
                             homeController.listItems.removeAt(index);
                             homeController.listItems = homeController.listItems;
+                            homeController.updateAllObjectBox(
+                                modelList: homeController.listItems);
                           }
                         },
                         child: Padding(
@@ -205,11 +222,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       Expanded(
                         child: CustomTextField(
                           homeController: homeController,
-                          focusNode: model.focusNode,
+                          focusNode: model.focusNode!,
                           onBoxLongPress: () {
                             model.isCheckedOff = !model.isCheckedOff;
                             homeController.update(["tab"]);
-                            print(("on long press"));
                           },
                           onBoxTap: () {
                             FocusManager.instance.primaryFocus?.unfocus();
@@ -221,6 +237,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           model: model,
                           onTextChanged: (text) {
                             model.value = text;
+                            homeController.updateObjectBoxModel(model: model);
                           },
                         ),
                       ),

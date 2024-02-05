@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   static const primaryBlueColor = blueBoxSelected;
@@ -21,21 +20,21 @@ class AppColors {
 }
 
 class AppTextStyles {
-  static final _fontBold = const TextStyle(
+  static const _fontBold = TextStyle(
       fontWeight: FontWeight.bold,
       fontStyle: FontStyle.normal,
       color: Colors.black,
       fontFamily: 'consoles',
       letterSpacing: 0.5);
 
-  static final _fontBoldMedium = const TextStyle(
+  static const _fontBoldMedium = TextStyle(
       fontWeight: FontWeight.w600,
       fontStyle: FontStyle.normal,
       color: Colors.black,
       fontFamily: 'consoles',
       letterSpacing: 0.5);
 
-  static final _fontNormal = const TextStyle(
+  static const _fontNormal = TextStyle(
       fontWeight: FontWeight.normal,
       letterSpacing: 0.5,
       fontFamily: 'consoles',
