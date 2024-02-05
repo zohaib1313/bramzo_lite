@@ -180,8 +180,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   details.primaryDelta!);
                         },
                         onTap: () {
-                          homeController.listItems.removeAt(index);
-                          homeController.listItems = homeController.listItems;
+                          if (homeController.listItems.length > 1) {
+                            if (homeController.listItems.elementAt(index).id ==
+                                homeController.selectedTabModel?.id) {
+                              homeController.selectedTabModel =
+                                  homeController.listItems.elementAt(index - 1);
+                            }
+
+                            homeController.listItems.removeAt(index);
+                            homeController.listItems = homeController.listItems;
+                          }
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -197,7 +205,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       Expanded(
                         child: CustomTextField(
                           homeController: homeController,
-                          needRequestFocus: true,
+                          focusNode: model.focusNode,
                           onBoxLongPress: () {
                             model.isCheckedOff = !model.isCheckedOff;
                             homeController.update(["tab"]);
@@ -205,10 +213,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           },
                           onBoxTap: () {
                             FocusManager.instance.primaryFocus?.unfocus();
-                            if (!model.isCheckedOff) {
-                              homeController.selectedTabModel = model;
-                              homeController.update(["tab"]);
-                            }
+                            //if (!model.isCheckedOff) {
+                            homeController.selectedTabModel = model;
+                            homeController.update(["tab"]);
+                            //}
                           },
                           model: model,
                           onTextChanged: (text) {

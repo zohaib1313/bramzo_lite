@@ -1,11 +1,16 @@
+import 'package:flutter/cupertino.dart';
+
 class TabModel {
   int id;
   String value;
   bool isCheckedOff;
 
+  FocusNode focusNode;
+
   TabModel({
     required this.id,
     required this.value,
+    required this.focusNode,
     this.isCheckedOff = false,
   });
 
@@ -15,6 +20,7 @@ class TabModel {
       other is TabModel &&
           runtimeType == other.runtimeType &&
           id == other.id &&
+          focusNode == other.focusNode &&
           value == other.value &&
           isCheckedOff == other.isCheckedOff;
 

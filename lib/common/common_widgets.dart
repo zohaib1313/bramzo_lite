@@ -40,8 +40,9 @@ class SvgViewer extends StatelessWidget {
 class CustomTextField extends StatefulWidget {
   final TabModel model;
   final ValueChanged<String>? onTextChanged;
+  final FocusNode focusNode;
 
-  final bool needRequestFocus;
+
   final HomePageController homeController;
   final Null Function() onBoxLongPress;
   final Null Function() onBoxTap;
@@ -50,10 +51,10 @@ class CustomTextField extends StatefulWidget {
     super.key,
     this.onTextChanged,
     required this.model,
-    required this.needRequestFocus,
     required this.homeController,
     required this.onBoxLongPress,
     required this.onBoxTap,
+    required this.focusNode,
   });
 
   @override
@@ -61,16 +62,16 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  FocusNode focusNode = FocusNode();
   TextEditingController textEditingController = TextEditingController();
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (widget.needRequestFocus) {
-        focusNode.requestFocus();
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   if (widget.needRequestFocus) {
+    //     primaryFocus?.requestFocus(focusNode);
+    //     print("focusingon : ${widget.model.id}");
+    //   }
+    // });
     textEditingController
       ..text = widget.model.value
       ..selection = TextSelection.collapsed(offset: widget.model.value.length);
@@ -100,9 +101,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         FocusManager.instance.primaryFocus?.unfocus();
                       },
                       child: EnsureVisibleWhenFocused(
-                        focusNode: focusNode,
+                        focusNode: widget.focusNode,
                         child: TextField(
-                          focusNode: focusNode,
+                          focusNode: widget.focusNode,
                           onTap: () {
                             if (!widget.model.isCheckedOff) {
                               widget.homeController.selectedTabModel =

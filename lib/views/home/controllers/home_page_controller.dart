@@ -23,7 +23,8 @@ class HomePageController extends GetxController
 
   void addNewItemToList() {
     addedNumber++;
-    TabModel model = TabModel(id: addedNumber, value: "");
+    TabModel model =
+        TabModel(id: addedNumber, value: "", focusNode: FocusNode());
     if (listItems.isEmpty) {
       listItems.insert(0, model);
     } else if (listItems.length == 1) {
@@ -32,10 +33,14 @@ class HomePageController extends GetxController
       listItems.insert(1, model);
     } else {
       int index = listItems.indexOf(selectedTabModel);
-      listItems.insert(index, model);
+      if (index == 0) {
+        listItems.insert(1, model);
+      } else {
+        listItems.insert(index, model);
+      }
     }
     selectedTabModel = model;
-
+    model.focusNode.requestFocus();
     print(listItems.length);
   }
 
