@@ -30,6 +30,7 @@ class HomePageController extends GetxController
               allTabsModelList.firstWhere((element) => element.index == index);
           item.focusNode = FocusNode();
           item.localId = item.id!;
+
           return item;
         },
       ));

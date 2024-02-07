@@ -42,18 +42,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ///app-bar
                   Padding(
                     padding: EdgeInsets.symmetric(
-                        vertical: 8, horizontal: AppConstants.leftRightPadding),
+                      vertical: 8,
+                      horizontal: AppConstants.leftRightPadding,
+                    ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      textBaseline: TextBaseline.ideographic,
                       children: [
-                        SizedBox(
-                          height: 35.h,
+                        // ContainerA
+                        Container(
+                          height: 30.h,
+                          alignment: Alignment.bottomCenter,
                           child: RichText(
                             text: TextSpan(
                               style: AppTextStyles.textStyleBoldSubTitleLarge
-                                  .copyWith(color: AppColors.lightGrey),
+                                  .copyWith(
+                                      color: AppColors.lightGrey,
+                                      fontSize: 27.sp,
+                                      fontWeight: FontWeight.w400),
                               children: [
                                 const TextSpan(text: "Bramzo"),
                                 const WidgetSpan(child: SizedBox(width: 2)),
@@ -62,15 +68,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   style: AppTextStyles
                                       .textStyleBoldSubTitleLarge
                                       .copyWith(
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.lightGrey),
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.lightGrey,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ),
                         const Spacer(),
+                        // ContainerB
                         GestureDetector(
                           onTap: () async {
                             AppUtils.playTapSound();
@@ -78,18 +86,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             controller.initProcess();
                           },
                           child: Container(
-                            height: 35.h,
+                            height: 24.h,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6),
-                                color: AppColors.blueBoxUnSelected),
+                              borderRadius: BorderRadius.circular(6),
+                              color: AppColors.blueBoxUnSelected,
+                            ),
                             alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.only(
+                                left: 6, right: 6, top: 3),
                             child: Text(
                               "RESET",
+                              textAlign: TextAlign.center,
                               style: AppTextStyles.textStyleBoldSubTitleLarge
                                   .copyWith(
                                       color: AppColors.primaryBlueColor,
-                                      fontSize: 22.sp),
+                                      fontSize: 20.sp),
                             ),
                           ),
                         )
@@ -119,7 +130,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           FocusManager.instance.primaryFocus?.unfocus();
                         },
                         onReorder: (int oldIndex, int newIndex) {
-                          print("reorder");
                           final TabModel item =
                               controller.listItems.removeAt(oldIndex);
                           controller.listItems.insert(newIndex, item);
@@ -171,7 +181,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       required HomePageController homeController}) {
     return SizedBox(
       key: ValueKey(model.localId),
-      height: AppConstants.listItemHeight + 10,
+      height: AppConstants.listItemHeight + 14.h,
       child: GetBuilder<HomePageController>(
           assignId: true,
           id: "tab",
@@ -213,17 +223,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 modelList: homeController.listItems);
                           }
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: AppConstants.leftRightPadding,
+                          //  color: Colors.black,
+                          padding: const EdgeInsets.all(7),
+
                           child: SvgViewer(
+                            height: 14.h,
                             svgPath: Assets.svgsDelBtnSvg,
-                            height: 18.sp,
-                            width: 18.sp,
                             color: homeController.getDelBtnColor(model: model),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 4),
+
                       Expanded(
                         child: CustomTextField(
                           homeController: homeController,
@@ -231,6 +243,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           onBoxLongPress: () {
                             AppUtils.playTapSound();
                             model.isCheckedOff = !model.isCheckedOff;
+                            homeController.listItems[index] = model;
+                            homeController.updateObjectBoxModel(model: model);
+
                             Vibration.vibrate(duration: 55);
                             homeController.update(["tab"]);
                           },
@@ -277,7 +292,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   },
                   child: Container(
                       color: Colors.transparent,
-                      height: 10,
+                      height: 14.h,
                       width: double.infinity),
                 )
               ],

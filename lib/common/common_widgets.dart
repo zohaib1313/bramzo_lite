@@ -84,7 +84,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       children: [
         Expanded(
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(6.0),
+            borderRadius: BorderRadius.circular(10.0),
             child: Container(
               decoration: BoxDecoration(
                 color: widget.homeController

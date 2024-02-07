@@ -2,6 +2,7 @@
 class Assets {
   Assets._();
 
+  static const String fontsBAHNSCHRIFT = 'assets/fonts/BAHNSCHRIFT.TTF';
   static const String fontsCONSOLA = 'assets/fonts/CONSOLA.TTF';
   static const String fontsCONSOLAB = 'assets/fonts/CONSOLAB.TTF';
   static const String fontsCour = 'assets/fonts/cour.ttf';

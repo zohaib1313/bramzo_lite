@@ -75,6 +75,9 @@ flutter:
     - family: cour
       fonts:
         - asset: assets/fonts/cour.ttf
+    - family: BAHNSCHRIFT
+      fonts:
+        - asset: assets/fonts/BAHNSCHRIFT.TTF
 
 
 

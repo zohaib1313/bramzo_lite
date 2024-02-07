@@ -24,7 +24,7 @@ class AppTextStyles {
       fontWeight: FontWeight.bold,
       fontStyle: FontStyle.normal,
       color: Colors.black,
-      fontFamily: 'consoles',
+      fontFamily: 'BAHNSCHRIFT',
       letterSpacing: 0.5);
 
   static const _fontBoldMedium = TextStyle(

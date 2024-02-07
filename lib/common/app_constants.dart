@@ -7,6 +7,6 @@ class AppConstants {
   static const appName = 'Bramzo Lite';
 
   static double get topBottomPadding => 10;
-  static double get listItemHeight => 45;
+  static double get listItemHeight => 40.h;
   static double get leftRightPadding => 30;
 }

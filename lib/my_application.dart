@@ -25,7 +25,7 @@ class _MyApplicationState extends State<MyApplication> {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       useInheritedMediaQuery: true,
-      designSize: const Size(428, 926),
+      designSize: const Size(360, 640),
       builder: (_, __) => GetMaterialApp(
         getPages: appRoutes(),
         // translations  translations: Languages(),
