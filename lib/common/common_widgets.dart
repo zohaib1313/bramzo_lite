@@ -122,7 +122,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                                   ? AppColors.orangeText
                                   : Colors.black),
                           decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.only(left: 14),
+                            contentPadding: EdgeInsets.only(left: 32),
                             border: InputBorder.none,
                           ),
                         ),
