@@ -40,45 +40,37 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   ///app-bar
-                  Padding(
+                  Container(
+                    margin: EdgeInsets.only(top: 10.h),
                     padding: EdgeInsets.symmetric(
-                      vertical: 8,
                       horizontal: AppConstants.leftRightPadding,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // ContainerA
-                        Container(
-                          height: 30.h,
-                          alignment: Alignment.bottomCenter,
-                          child: RichText(
-                            text: TextSpan(
-                              style: AppTextStyles.textStyleBoldSubTitleLarge
-                                  .copyWith(
-                                      color: AppColors.lightGrey,
-                                      fontSize: 27.sp,
-                                      fontWeight: FontWeight.w400),
-                              children: [
-                                const TextSpan(text: "Bramzo"),
-                                const WidgetSpan(child: SizedBox(width: 2)),
-                                TextSpan(
-                                  text: "Lite",
-                                  style: AppTextStyles
-                                      .textStyleBoldSubTitleLarge
-                                      .copyWith(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.bold,
+                        RichText(
+                          text: TextSpan(
+                            style: AppTextStyles.textStyleBoldSubTitleLarge
+                                .copyWith(
                                     color: AppColors.lightGrey,
-                                  ),
+                                    fontSize: 27.sp,
+                                    fontWeight: FontWeight.w400),
+                            children: [
+                              const TextSpan(text: "Bramzo"),
+                              const WidgetSpan(child: SizedBox(width: 2)),
+                              TextSpan(
+                                text: "Lite",
+                                style: AppTextStyles.textStyleBoldSubTitleLarge
+                                    .copyWith(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.lightGrey,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                         const Spacer(),
-                        // ContainerB
                         GestureDetector(
                           onTap: () async {
                             AppUtils.playTapSound();
@@ -86,7 +78,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             controller.initProcess();
                           },
                           child: Container(
-                            height: 24.h,
+                            height: 22.h,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(6),
                               color: AppColors.blueBoxUnSelected,
