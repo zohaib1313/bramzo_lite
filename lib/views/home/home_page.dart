@@ -42,19 +42,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ///app-bar
                   Container(
                     margin: EdgeInsets.only(top: 10.h),
+                    //  color: Colors.red,
                     padding: EdgeInsets.symmetric(
-                      horizontal: AppConstants.leftRightPadding,
-                    ),
+                        horizontal: AppConstants.leftRightPadding),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         RichText(
                           text: TextSpan(
                             style: AppTextStyles.textStyleBoldSubTitleLarge
                                 .copyWith(
-                                    color: AppColors.lightGrey,
-                                    fontSize: 27.sp,
-                                    fontWeight: FontWeight.w400),
+                              color: AppColors.lightGrey,
+                              fontSize: 28.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
                             children: [
                               const TextSpan(text: "Bramzo"),
                               const WidgetSpan(child: SizedBox(width: 2)),
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 text: "Lite",
                                 style: AppTextStyles.textStyleBoldSubTitleLarge
                                     .copyWith(
-                                  fontSize: 14.sp,
+                                  fontSize: 12.sp,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.lightGrey,
                                 ),
@@ -78,24 +79,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             controller.initProcess();
                           },
                           child: Container(
-                            height: 22.h,
+                            height: 36.h,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              color: AppColors.blueBoxUnSelected,
-                            ),
+                                borderRadius: BorderRadius.circular(6),
+                                color: AppColors.blueBoxUnSelected),
                             alignment: Alignment.center,
+                            margin: const EdgeInsets.only(bottom: 2),
                             padding: const EdgeInsets.only(
-                                left: 6, right: 6, top: 3),
+                                left: 6, right: 6, top: 2),
                             child: Text(
                               "RESET",
-                              textAlign: TextAlign.center,
                               style: AppTextStyles.textStyleBoldSubTitleLarge
                                   .copyWith(
                                       color: AppColors.primaryBlueColor,
-                                      fontSize: 20.sp),
+                                      fontSize: 22.sp),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -111,13 +111,37 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         itemBuilder: (BuildContext context, int index) {
                           return _getListItem(
                               index: index,
+                              key: ValueKey(
+                                  controller.listItems.elementAt(index).id),
                               homeController: controller,
                               model: controller.listItems.elementAt(index));
                         },
                         enterTransition: controller.animations,
                         exitTransition: controller.animations,
-                        insertDuration: const Duration(milliseconds: 300),
-                        removeDuration: const Duration(milliseconds: 300),
+                        insertDuration: const Duration(milliseconds: 600),
+                        removeDuration: const Duration(milliseconds: 600),
+                        removeItemBuilder: (widget, animation) {
+                          final curvedAnimation = CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeOutBack,
+                          );
+                          return SizeTransition(
+                            sizeFactor: curvedAnimation,
+                            child: ScaleTransition(
+                                scale: curvedAnimation, child: widget),
+                          );
+                        },
+                        insertItemBuilder: (widget, animation) {
+                          final curvedAnimation = CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeOutBack,
+                          );
+                          return SizeTransition(
+                            sizeFactor: curvedAnimation,
+                            child: ScaleTransition(
+                                scale: curvedAnimation, child: widget),
+                          );
+                        },
                         onReorderStart: (index) {
                           FocusManager.instance.primaryFocus?.unfocus();
                         },
@@ -170,10 +194,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget _getListItem(
       {required int index,
       required TabModel model,
+      required Key key,
       required HomePageController homeController}) {
     return SizedBox(
-      key: ValueKey(model.localId),
-      height: AppConstants.listItemHeight + 14.h,
+      key: key,
+      height: AppConstants.listItemHeight + 20.h,
       child: GetBuilder<HomePageController>(
           assignId: true,
           id: "tab",
@@ -193,6 +218,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         },
                         onTap: () async {
                           AppUtils.playTapSound();
+
                           if (homeController.listItems.length > 1) {
                             if (homeController.selectedTabModel?.localId ==
                                 homeController.listItems
@@ -210,18 +236,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             }
 
                             homeController.listItems.removeAt(index);
-                            homeController.listItems = homeController.listItems;
                             homeController.updateAllObjectBox(
                                 modelList: homeController.listItems);
                           }
                         },
                         child: Container(
                           width: AppConstants.leftRightPadding,
-                          //  color: Colors.black,
-                          padding: const EdgeInsets.all(7),
-
+                          padding: const EdgeInsets.all(6),
                           child: SvgViewer(
-                            height: 14.h,
+                            height: double.infinity,
                             svgPath: Assets.svgsDelBtnSvg,
                             color: homeController.getDelBtnColor(model: model),
                           ),
@@ -284,7 +307,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   },
                   child: Container(
                       color: Colors.transparent,
-                      height: 14.h,
+                      height: 20.h,
                       width: double.infinity),
                 )
               ],

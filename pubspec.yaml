@@ -31,7 +31,6 @@ dependencies:
   audioplayers: ^5.2.1
   path_provider: ^2.0.11
 
-
   ensure_visible_when_focused: ^1.2.0
   animated_reorderable_list:
     path: ./animated_reorderable_list

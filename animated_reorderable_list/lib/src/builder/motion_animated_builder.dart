@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+
 import '../component/drag_listener.dart';
 import '../model/motion_data.dart';
 import 'motion_list_base.dart';
@@ -75,6 +76,48 @@ class MotionBuilder<E> extends StatefulWidget {
   }
 }
 
+Offset _extentOffset(double extent, Axis scrollDirection) {
+  switch (scrollDirection) {
+    case Axis.horizontal:
+      return Offset(extent, 0.0);
+    case Axis.vertical:
+      return Offset(0.0, extent);
+  }
+}
+
+@optionalTypeArgs
+class _MotionBuilderItemGlobalKey extends GlobalObjectKey {
+  const _MotionBuilderItemGlobalKey(this.subKey, this.state) : super(subKey);
+
+  final Key subKey;
+  final State state;
+
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is _MotionBuilderItemGlobalKey &&
+        other.subKey == subKey &&
+        other.state == state;
+  }
+
+  @override
+  int get hashCode => Object.hash(subKey, state);
+}
+
+class _ActiveItem implements Comparable<_ActiveItem> {
+  _ActiveItem.animation(this.controller, this.itemIndex);
+
+  _ActiveItem.index(this.itemIndex) : controller = null;
+
+  final AnimationController? controller;
+  int itemIndex;
+
+  @override
+  int compareTo(_ActiveItem other) => itemIndex - other.itemIndex;
+}
+
 class MotionBuilderState extends State<MotionBuilder>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   final List<_ActiveItem> _incomingItems = <_ActiveItem>[];
@@ -106,7 +149,7 @@ class MotionBuilderState extends State<MotionBuilder>
   bool get isGrid => widget.delegateBuilder != null;
 
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -150,7 +193,6 @@ class MotionBuilderState extends State<MotionBuilder>
           ..onStart = _dragStart
           ..addPointer(event);
         _recognizerPointer = event.pointer;
-        print("dragging");
       } else {
         throw Exception("Attempting ro start drag on a non-visible item");
       }
@@ -472,7 +514,7 @@ class MotionBuilderState extends State<MotionBuilder>
       ..sort();
 
     final motionData = MotionData(
-        endOffset: Offset.zero, startOffset: Offset.zero, visible: false);
+        endOffset: Offset.zero, startOffset: Offset.zero, visible: true);
 
     final updatedChildrenMap = <int, MotionData>{};
     if (childrenMap.containsKey(itemIndex)) {
@@ -537,7 +579,6 @@ class MotionBuilderState extends State<MotionBuilder>
         _removeActiveItemAt(_outgoingItems, outgoingItem.itemIndex)!
             .controller!
             .dispose();
-
         // Decrement the incoming and outgoing item indices to account
         // for the removal.
         for (final _ActiveItem item in _incomingItems) {
@@ -546,14 +587,14 @@ class MotionBuilderState extends State<MotionBuilder>
         for (final _ActiveItem item in _outgoingItems) {
           if (item.itemIndex > outgoingItem.itemIndex) item.itemIndex -= 1;
         }
-
         _onItemRemoved(itemIndex, removeItemDuration);
       });
     }
   }
 
-  void _onItemRemoved(int itemIndex, Duration removeDuration) {
+  void _onItemRemoved(int itemIndex, Duration removeDuration) async {
     final updatedChildrenMap = <int, MotionData>{};
+
     if (childrenMap.containsKey(itemIndex)) {
       for (final entry in childrenMap.entries) {
         if (entry.key < itemIndex) {
@@ -566,10 +607,10 @@ class MotionBuilderState extends State<MotionBuilder>
         }
       }
     }
+    _itemsCount -= 1;
     childrenMap.clear();
     childrenMap.addAll(updatedChildrenMap);
-
-    setState(() => _itemsCount -= 1);
+    setState(() {});
   }
 
   Offset _itemOffsetAt(int index) {
@@ -577,63 +618,6 @@ class MotionBuilderState extends State<MotionBuilder>
         _items[index]?.context.findRenderObject() as RenderBox?;
     if (itemRenderBox == null) return Offset.zero;
     return itemRenderBox.localToGlobal(Offset.zero);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return widget.delegateBuilder != null
-        ? SliverGrid(
-            gridDelegate: widget.delegateBuilder!, delegate: _createDelegate())
-        : SliverList(delegate: _createDelegate());
-  }
-
-  Widget _itemBuilder(BuildContext context, int index) {
-    final _ActiveItem? outgoingItem = _activeItemAt(_outgoingItems, index);
-    final _ActiveItem? incomingItem = _activeItemAt(_incomingItems, index);
-
-    if (outgoingItem != null) {
-      final child = _items[index]!.widget;
-      return _removeItemBuilder(outgoingItem, child);
-    }
-    if (_dragInfo != null && index >= _itemsCount) {
-      return SizedBox.fromSize(size: _dragInfo!.itemSize);
-    }
-
-    final Widget child = widget.onReorder != null
-        ? reordreableItemBuilder(context, _itemIndexToIndex(index))
-        : widget.itemBuilder(context, _itemIndexToIndex(index));
-
-    assert(() {
-      if (child.key == null) {
-        throw FlutterError(
-          'Every item of AnimatedReorderableList must have a unique key.',
-        );
-      }
-      return true;
-    }());
-
-    final Key itemGlobalKey = _MotionBuilderItemGlobalKey(child.key!, this);
-    final Widget builder = _insertItemBuilder(incomingItem, child);
-
-    final motionData = childrenMap[index];
-    //print("$index ===== StartOffset: ${motionData.startOffset}");
-    if (motionData == null) return builder;
-    final OverlayState overlay = Overlay.of(context, debugRequiredFor: widget);
-
-    return MotionAnimatedContent(
-      index: index,
-      key: itemGlobalKey,
-      motionData: motionData,
-      updateMotionData: (MotionData motionData) {
-        final itemOffset = _itemOffsetAt(index);
-        childrenMap[index] =
-            motionData.copyWith(startOffset: itemOffset, endOffset: itemOffset);
-      },
-      capturedThemes:
-          InheritedTheme.capture(from: context, to: overlay.context),
-      child: builder,
-    );
   }
 
   SliverChildDelegate _createDelegate() {
@@ -738,48 +722,61 @@ class MotionBuilderState extends State<MotionBuilder>
   Widget _insertItemBuilder(_ActiveItem? incomingItem, Widget child) {
     final Animation<double> animation =
         incomingItem?.controller ?? kAlwaysCompleteAnimation;
+
     return widget.insertAnimationBuilder(context, child, animation);
   }
-}
-
-Offset _extentOffset(double extent, Axis scrollDirection) {
-  switch (scrollDirection) {
-    case Axis.horizontal:
-      return Offset(extent, 0.0);
-    case Axis.vertical:
-      return Offset(0.0, extent);
-  }
-}
-
-@optionalTypeArgs
-class _MotionBuilderItemGlobalKey extends GlobalObjectKey {
-  const _MotionBuilderItemGlobalKey(this.subKey, this.state) : super(subKey);
-
-  final Key subKey;
-  final State state;
 
   @override
-  bool operator ==(Object other) {
-    if (other.runtimeType != runtimeType) {
-      return false;
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return SliverList(delegate: _createDelegate());
+  }
+
+  Widget _itemBuilder(BuildContext context, int index) {
+    final _ActiveItem? outgoingItem = _activeItemAt(_outgoingItems, index);
+    final _ActiveItem? incomingItem = _activeItemAt(_incomingItems, index);
+
+    if (outgoingItem != null) {
+      final child = _items[index]!.widget;
+      return _removeItemBuilder(outgoingItem, child);
     }
-    return other is _MotionBuilderItemGlobalKey &&
-        other.subKey == subKey &&
-        other.state == state;
+    if (_dragInfo != null && index >= _itemsCount) {
+      return SizedBox.fromSize(size: _dragInfo!.itemSize);
+    }
+
+    final Widget child = widget.onReorder != null
+        ? reordreableItemBuilder(context, _itemIndexToIndex(index))
+        : widget.itemBuilder(context, _itemIndexToIndex(index));
+
+    assert(() {
+      if (child.key == null) {
+        throw FlutterError(
+          'Every item of AnimatedReorderableList must have a unique key.',
+        );
+      }
+      return true;
+    }());
+
+    final Key itemGlobalKey = _MotionBuilderItemGlobalKey(child.key!, this);
+    final Widget builder = _insertItemBuilder(incomingItem, child);
+
+    final motionData = childrenMap[index];
+    if (motionData == null) return builder;
+    final OverlayState overlay = Overlay.of(context, debugRequiredFor: widget);
+
+    return MotionAnimatedContent(
+      index: index,
+      key: itemGlobalKey,
+      motionData: motionData,
+      updateMotionData: (MotionData motionData) {
+        final itemOffset = _itemOffsetAt(index);
+        childrenMap[index] =
+            motionData.copyWith(startOffset: itemOffset, endOffset: itemOffset);
+      },
+      capturedThemes:
+          InheritedTheme.capture(from: context, to: overlay.context),
+      child: builder,
+    );
   }
-
-  @override
-  int get hashCode => Object.hash(subKey, state);
-}
-
-class _ActiveItem implements Comparable<_ActiveItem> {
-  _ActiveItem.animation(this.controller, this.itemIndex);
-
-  _ActiveItem.index(this.itemIndex) : controller = null;
-
-  final AnimationController? controller;
-  int itemIndex;
-
-  @override
-  int compareTo(_ActiveItem other) => itemIndex - other.itemIndex;
 }

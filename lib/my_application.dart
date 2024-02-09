@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:bramzo_lite/common/app_constants.dart';
 import 'package:bramzo_lite/common/app_utils.dart';
+import 'package:bramzo_lite/main.dart';
 import 'package:bramzo_lite/views/home/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class _MyApplicationState extends State<MyApplication> {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       useInheritedMediaQuery: true,
-      designSize: const Size(360, 640),
+      designSize: const Size(428, 926),
       builder: (_, __) => GetMaterialApp(
         getPages: appRoutes(),
         // translations  translations: Languages(),

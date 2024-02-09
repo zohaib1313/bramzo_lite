@@ -8,7 +8,7 @@ class MotionData {
   MotionData(
       {this.startOffset = Offset.zero,
       this.endOffset = Offset.zero,
-      this.visible = true});
+      this.visible = false});
 
   MotionData copyWith({Offset? startOffset, Offset? endOffset, bool? visible}) {
     return MotionData(
@@ -27,4 +27,9 @@ class MotionData {
 
   @override
   int get hashCode => startOffset.hashCode ^ endOffset.hashCode;
+
+  @override
+  String toString() {
+    return 'MotionData{startOffset: $startOffset, endOffset: $endOffset, visible: $visible}';
+  }
 }

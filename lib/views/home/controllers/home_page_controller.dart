@@ -13,7 +13,7 @@ class HomePageController extends GetxController
   TabModel? selectedTabModel;
   RxList<TabModel> listItems = <TabModel>[].obs;
 
-  List<AnimationEffect> animations = [ScaleInTop(), ScaleInBottom()];
+  List<AnimationEffect> animations = [FadeIn(curve: Curves.easeIn)];
 
   ScrollController scrollController = ScrollController();
 
@@ -21,7 +21,7 @@ class HomePageController extends GetxController
     listItems.clear();
 
     List<TabModel> allTabsModelList = await ObjectBox.getAllObjects<TabModel>();
-
+    print("read from db : ${allTabsModelList.length}");
     if (allTabsModelList.isNotEmpty) {
       listItems.assignAll(List<TabModel>.generate(
         allTabsModelList.length,

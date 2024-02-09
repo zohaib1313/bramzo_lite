@@ -11,7 +11,7 @@ typedef AnimatedWidgetBuilder<W extends Widget, E> = Widget Function(
 
 typedef EqualityChecker<E> = bool Function(E, E);
 
-const Duration kAnimationDuration = Duration(milliseconds: 0);
+const Duration kAnimationDuration = Duration(milliseconds: 300);
 
 abstract class MotionListBase<W extends Widget, E extends Object>
     extends StatefulWidget {

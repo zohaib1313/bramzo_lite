@@ -4,6 +4,7 @@ class MotionAnimatedContent extends StatefulWidget {
   final int index;
   final MotionData motionData;
   final Widget child;
+
   final Function(MotionData)? updateMotionData;
   final CapturedThemes? capturedThemes;
 
@@ -51,17 +52,19 @@ class MotionAnimatedContentState extends State<MotionAnimatedContent>
   }
 
   int get index => widget.index;
-  bool visible = true;
+  bool visible = false;
 
   @override
   void initState() {
     listState = MotionBuilder.of(context);
     listState.registerItem(this);
-    visible = widget.motionData.visible;
+    visible = false;
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       widget.updateMotionData?.call(widget.motionData);
+      print("initttttt:${index} ${widget.motionData.toString()}");
     });
+
     Future.delayed(kAnimationDuration).then((value) {
       visible = true;
       rebuild();
@@ -79,11 +82,6 @@ class MotionAnimatedContentState extends State<MotionAnimatedContent>
       visible = false;
     }
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (mounted) {
-        setState(() {
-          visible = true;
-        });
-      }
       if (oldWidget.index != widget.index && !_dragging) {
         _updateAnimationTranslation();
       }
@@ -92,27 +90,28 @@ class MotionAnimatedContentState extends State<MotionAnimatedContent>
     super.didUpdateWidget(oldWidget);
   }
 
-  void _updateAnimationTranslation() {
+  Future<void> _updateAnimationTranslation() async {
     Offset endOffset = itemOffset();
     Offset offsetDiff = (widget.motionData.startOffset + offset) - endOffset;
+
     _startOffset = offsetDiff;
-    if (offsetDiff.dx != 0 || offsetDiff.dy != 0) {
+    if (offsetDiff.dx != 0.0 || offsetDiff.dy != 0.0) {
       if (_offsetAnimation == null) {
-        // _offsetAnimation = AnimationController(
-        //   vsync: listState,
-        //   duration: kAnimationDuration,
-        // )
-        //   ..addListener(rebuild)
-        //   ..addStatusListener((AnimationStatus status) {
-        //     if (status == AnimationStatus.completed) {
-        //       widget.updateMotionData?.call(widget.motionData);
-        //
-        //       _startOffset = _targetOffset;
-        //       _offsetAnimation!.dispose();
-        //       _offsetAnimation = null;
-        //     }
-        //   })
-        //   ..forward();
+        _offsetAnimation = AnimationController(
+            vsync: listState, duration: kAnimationDuration, value: 0.5)
+          ..addListener(() {
+            rebuild();
+          })
+          ..addStatusListener((AnimationStatus status) {
+            if (status == AnimationStatus.completed) {
+              widget.updateMotionData?.call(widget.motionData);
+
+              _startOffset = _targetOffset;
+              _offsetAnimation?.dispose();
+              _offsetAnimation = null;
+            }
+          })
+          ..forward();
       } else {
         _startOffset = offsetDiff;
         _offsetAnimation!.forward(from: 0.0);
@@ -141,7 +140,9 @@ class MotionAnimatedContentState extends State<MotionAnimatedContent>
           vsync: listState,
           duration: const Duration(milliseconds: 250),
         )
-          ..addListener(rebuild)
+          ..addListener(() {
+            rebuild();
+          })
           ..addStatusListener((AnimationStatus status) {
             if (status == AnimationStatus.completed) {
               _startOffset = _targetOffset;
@@ -162,21 +163,6 @@ class MotionAnimatedContentState extends State<MotionAnimatedContent>
       _startOffset = _targetOffset;
     }
     rebuild();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    listState.registerItem(this);
-    return Visibility(
-      maintainSize: true,
-      maintainAnimation: true,
-      maintainState: true,
-      visible: true,
-      child: Transform.translate(
-          offset: offset,
-          child:
-              !_dragging ? widget.child : SizedBox.fromSize(size: _dragSize)),
-    );
   }
 
   Offset itemOffset() {
@@ -218,5 +204,15 @@ class MotionAnimatedContentState extends State<MotionAnimatedContent>
   void deactivate() {
     listState.unregisterItem(index, this);
     super.deactivate();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    listState.registerItem(this);
+
+    return Transform.translate(
+      offset: offset,
+      child: !_dragging ? widget.child : SizedBox.fromSize(size: _dragSize),
+    );
   }
 }
