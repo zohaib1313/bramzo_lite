@@ -722,7 +722,6 @@ class MotionBuilderState extends State<MotionBuilder>
   Widget _insertItemBuilder(_ActiveItem? incomingItem, Widget child) {
     final Animation<double> animation =
         incomingItem?.controller ?? kAlwaysCompleteAnimation;
-
     return widget.insertAnimationBuilder(context, child, animation);
   }
 
@@ -738,8 +737,10 @@ class MotionBuilderState extends State<MotionBuilder>
     final _ActiveItem? incomingItem = _activeItemAt(_incomingItems, index);
 
     if (outgoingItem != null) {
-      final child = _items[index]!.widget;
-      return _removeItemBuilder(outgoingItem, child);
+      final child = _items[index]?.widget;
+      if (child != null) {
+        return _removeItemBuilder(outgoingItem, child);
+      }
     }
     if (_dragInfo != null && index >= _itemsCount) {
       return SizedBox.fromSize(size: _dragInfo!.itemSize);

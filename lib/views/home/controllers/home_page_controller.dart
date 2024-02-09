@@ -13,7 +13,7 @@ class HomePageController extends GetxController
   TabModel? selectedTabModel;
   RxList<TabModel> listItems = <TabModel>[].obs;
 
-  List<AnimationEffect> animations = [FadeIn(curve: Curves.easeIn)];
+  List<AnimationEffect> animations = [FadeIn()];
 
   ScrollController scrollController = ScrollController();
 
@@ -21,7 +21,7 @@ class HomePageController extends GetxController
     listItems.clear();
 
     List<TabModel> allTabsModelList = await ObjectBox.getAllObjects<TabModel>();
-    print("read from db : ${allTabsModelList.length}");
+
     if (allTabsModelList.isNotEmpty) {
       listItems.assignAll(List<TabModel>.generate(
         allTabsModelList.length,
@@ -67,6 +67,7 @@ class HomePageController extends GetxController
     }
     selectedTabModel = model;
     model.focusNode?.requestFocus();
+
     updateAllObjectBox(modelList: listItems);
   }
 
@@ -110,9 +111,27 @@ class HomePageController extends GetxController
     int result = await ObjectBox.deleteAllObjects<TabModel>();
     int index = 0;
     for (var element in modelList) {
-      element.index = index;
-      await ObjectBox.insertData<TabModel>(element);
-      index++;
+      if (element.isVisible) {
+        element.index = index;
+        await ObjectBox.insertData<TabModel>(element);
+        index++;
+      }
     }
+  }
+
+  void addAndRemoveInvisibleItem() {
+    addedNumber = addedNumber + 1;
+
+    listItems.insert(
+        listItems.length,
+        TabModel(
+            localId: addedNumber,
+            isVisible: false,
+            value: "",
+            focusNode: FocusNode()));
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      listItems.removeWhere((element) => element.isVisible == false);
+    });
   }
 }

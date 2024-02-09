@@ -8,6 +8,7 @@ class TabModel {
   int localId;
   int? index;
   String value;
+  bool isVisible;
   bool isCheckedOff;
   FocusNode? focusNode;
 
@@ -16,6 +17,7 @@ class TabModel {
     this.index,
     required this.value,
     this.focusNode,
+    this.isVisible = true,
     this.isCheckedOff = false,
   });
 

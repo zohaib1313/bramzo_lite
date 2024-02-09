@@ -22,17 +22,49 @@ class MyList extends StatefulWidget {
 class _MyListState extends State<MyList> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
 
-  List<String> _items = ['Item 1', 'Item 2', 'Item 3', 'Item 4'];
+  List<String> _items = [
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4',
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4',
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4',
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4',
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4',
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4',
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4'
+  ];
 
   void _removeItem(int index) {
     final removedItem = _items.removeAt(index);
     _listKey.currentState!.removeItem(
       index,
-      (context, animation) => _buildItem(removedItem, animation),
+      (context, animation) => _buildItem(index, animation),
     );
+    _items.insert(_items.length, "element");
+    _listKey.currentState!.insertItem(_items.length - 1);
+    setState(() {});
   }
 
-  Widget _buildItem(String item, Animation<double> animation) {
+  Widget _buildItem(int index, Animation<double> animation) {
     return SizeTransition(
       sizeFactor: animation,
       child: Container(
@@ -42,8 +74,8 @@ class _MyListState extends State<MyList> {
           scale: animation,
           child: Card(
             child: ListTile(
-              title: Text(item),
-              onTap: () => _removeItem(_items.indexOf(item)),
+              title: Text(_items[index]),
+              onTap: () => _removeItem(index),
             ),
           ),
         ),
@@ -61,16 +93,17 @@ class _MyListState extends State<MyList> {
             children: [
               InkWell(
                   onTap: () {
-                    _items.insert(2, "element");
+                    _items.insert(_items.length, "element");
                     _listKey.currentState!.insertItem(2);
                   },
                   child: Text("addd")),
               Expanded(
                 child: AnimatedList(
                   key: _listKey,
+                  physics: BouncingScrollPhysics(),
                   initialItemCount: _items.length,
                   itemBuilder: (context, index, animation) {
-                    return _buildItem(_items[index], animation);
+                    return _buildItem(index, animation);
                   },
                 ),
               ),
