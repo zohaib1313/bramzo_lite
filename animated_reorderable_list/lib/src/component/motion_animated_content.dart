@@ -111,7 +111,7 @@ class MotionAnimatedContentState extends State<MotionAnimatedContent>
               _offsetAnimation = null;
             }
           })
-          ..forward();
+          ..animateTo(1, curve: Curves.easeInOut);
       } else {
         _startOffset = offsetDiff;
         _offsetAnimation!.forward(from: 0.0);

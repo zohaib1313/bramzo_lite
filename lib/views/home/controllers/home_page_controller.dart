@@ -13,12 +13,13 @@ class HomePageController extends GetxController
   TabModel? selectedTabModel;
   RxList<TabModel> listItems = <TabModel>[].obs;
 
-  List<AnimationEffect> animations = [FadeIn()];
+  List<AnimationEffect> animations = [ScaleIn()];
 
   ScrollController scrollController = ScrollController();
 
   void initProcess() async {
     listItems.clear();
+    await Future.delayed(const Duration(milliseconds: 800));
 
     List<TabModel> allTabsModelList = await ObjectBox.getAllObjects<TabModel>();
 
@@ -123,12 +124,14 @@ class HomePageController extends GetxController
     addedNumber = addedNumber + 1;
 
     listItems.insert(
-        listItems.length,
-        TabModel(
-            localId: addedNumber,
-            isVisible: false,
-            value: "",
-            focusNode: FocusNode()));
+      listItems.length,
+      TabModel(
+        localId: addedNumber,
+        isVisible: false,
+        value: "",
+        focusNode: FocusNode(),
+      ),
+    );
 
     Future.delayed(const Duration(milliseconds: 1000), () {
       listItems.removeWhere((element) => element.isVisible == false);

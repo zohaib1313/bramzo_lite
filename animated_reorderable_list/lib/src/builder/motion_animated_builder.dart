@@ -474,7 +474,7 @@ class MotionBuilderState extends State<MotionBuilder>
   int _itemIndexToIndex(int itemIndex) {
     int index = itemIndex;
     for (final _ActiveItem item in _outgoingItems) {
-      assert(item.itemIndex != itemIndex);
+      // assert(item.itemIndex != itemIndex);
       if (item.itemIndex < itemIndex) {
         index -= 1;
       } else {

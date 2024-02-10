@@ -74,6 +74,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       GestureDetector(
                         onTap: () async {
                           AppUtils.playTapSound();
+                          FocusManager.instance.primaryFocus?.unfocus();
                           await ObjectBox.deleteAllObjects<TabModel>();
                           controller.initProcess();
                         },
@@ -102,60 +103,64 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ///
                 SizedBox(height: AppConstants.listItemHeight * 2),
                 Expanded(
-                  child: Obx(
-                    () => AnimatedReorderableListView<TabModel>(
-                      items: controller.listItems.value,
-                      physics: const NeverScrollableScrollPhysics(),
-                      controller: controller.scrollController,
-                      itemBuilder: (BuildContext context, int index) {
-                        return _getListItem(
-                            index: index,
-                            key: ValueKey(
-                                controller.listItems.elementAt(index).localId),
-                            homeController: controller,
-                            model: controller.listItems.elementAt(index));
-                      },
-                      enterTransition: controller.animations,
-                      exitTransition: controller.animations,
-                      insertDuration: const Duration(milliseconds: 600),
-                      removeDuration: const Duration(milliseconds: 750),
-                      removeItemBuilder: (widget, animation) {
-                        final curvedAnimation = CurvedAnimation(
-                          parent: animation,
-                          curve: Curves.easeIn,
-                        );
+                  child: Obx(() => AnimatedReorderableListView<TabModel>(
+                        items: controller.listItems.value,
+                        physics: const NeverScrollableScrollPhysics(),
+                        controller: controller.scrollController,
+                        itemBuilder: (BuildContext context, int index) {
+                          return controller.listItems.isNotEmpty
 
-                        return SizeTransition(
-                          sizeFactor: curvedAnimation,
-                          child: ScaleTransition(
-                              scale: curvedAnimation, child: widget),
-                        );
-                      },
-                      insertItemBuilder: (widget, animation) {
-                        final curvedAnimation = CurvedAnimation(
-                          parent: animation,
-                          curve: Curves.easeIn,
-                        );
-                        return SizeTransition(
-                          sizeFactor: curvedAnimation,
-                          child: ScaleTransition(
-                              scale: curvedAnimation, child: widget),
-                        );
-                      },
-                      onReorderStart: (index) {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                      },
-                      onReorder: (int oldIndex, int newIndex) {
-                        final TabModel item =
-                            controller.listItems.removeAt(oldIndex);
-                        controller.listItems.insert(newIndex, item);
+                              ///checking is Emptylist, because sometimes it gives exception
+                              ///while clearing list...
+                              ? _getListItem(
+                                  index: index,
+                                  key: ValueKey(controller.listItems
+                                      .elementAt(index)
+                                      .localId),
+                                  homeController: controller,
+                                  model: controller.listItems.elementAt(index))
+                              : SizedBox(key: UniqueKey());
+                        },
+                        enterTransition: controller.animations,
+                        exitTransition: controller.animations,
+                        insertDuration: const Duration(milliseconds: 750),
+                        removeDuration: const Duration(milliseconds: 750),
+                        removeItemBuilder: (widget, animation) {
+                          final curvedAnimation = CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeInOut,
+                          );
 
-                        controller.updateAllObjectBox(
-                            modelList: controller.listItems);
-                      },
-                      proxyDecorator: proxyDecorator,
-                    ),
-                  ),
+                          return SizeTransition(
+                            sizeFactor: curvedAnimation,
+                            child: ScaleTransition(
+                                scale: curvedAnimation, child: widget),
+                          );
+                        },
+                        insertItemBuilder: (widget, animation) {
+                          final curvedAnimation = CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeInOut,
+                          );
+                          return SizeTransition(
+                            sizeFactor: curvedAnimation,
+                            child: ScaleTransition(
+                                scale: curvedAnimation, child: widget),
+                          );
+                        },
+                        onReorderStart: (index) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        onReorder: (int oldIndex, int newIndex) {
+                          final TabModel item =
+                              controller.listItems.removeAt(oldIndex);
+                          controller.listItems.insert(newIndex, item);
+
+                          controller.updateAllObjectBox(
+                              modelList: controller.listItems);
+                        },
+                        proxyDecorator: proxyDecorator,
+                      )),
                 ),
 
                 ///

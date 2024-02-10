@@ -102,6 +102,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       },
                       child: EnsureVisibleWhenFocused(
                         focusNode: widget.focusNode,
+                        alignment: 0.1,
+                        curve: Curves.easeInOut,
                         child: TextField(
                           focusNode: widget.focusNode,
                           textCapitalization: TextCapitalization.sentences,
