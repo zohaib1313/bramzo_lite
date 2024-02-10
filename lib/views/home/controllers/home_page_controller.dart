@@ -120,7 +120,10 @@ class HomePageController extends GetxController
     }
   }
 
+  bool isDeleting = false;
+
   void addAndRemoveInvisibleItem() {
+    isDeleting = true;
     addedNumber = addedNumber + 1;
 
     listItems.insert(
@@ -135,6 +138,7 @@ class HomePageController extends GetxController
 
     Future.delayed(const Duration(milliseconds: 1000), () {
       listItems.removeWhere((element) => element.isVisible == false);
+      isDeleting = false;
     });
   }
 }

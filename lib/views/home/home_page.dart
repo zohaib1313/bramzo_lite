@@ -225,7 +225,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         details.primaryDelta!);
                               },
                               onTap: () async {
-                                if (homeController.listItems.length > 1) {
+                                if (homeController.listItems.length > 1 &&
+                                    !homeController.isDeleting) {
                                   if (homeController
                                           .selectedTabModel?.localId ==
                                       homeController.listItems
@@ -241,8 +242,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               .elementAt(index + 1);
                                     }
                                   }
-                                  homeController.listItems.removeAt(index);
+
                                   homeController.addAndRemoveInvisibleItem();
+                                  homeController.listItems.removeAt(index);
                                   homeController.updateAllObjectBox(
                                       modelList: homeController.listItems);
                                   AppUtils.playTapSound();
